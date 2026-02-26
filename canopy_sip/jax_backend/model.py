@@ -38,7 +38,8 @@ from .sunshade_kt_he import sunshade_kt_he
 
 def make_params(SZA=0.0, SAA=0.0, Crowndeepth=12.8675, Height=20.0,
                 Height_c=6.634, dthr=0.41234, bl=0.1, iD=0.58073,
-                LAI=5.0, D=0.0, rho=0.4957, tau=0.4409, rg=0.159):
+                LAI=5.0, D=0.0, rho=0.4957, tau=0.4409, rg=0.159,
+                CIy1=1.0, CIy2=1.0):
     """
     Create a parameter dictionary for the JAX simulation.
 
@@ -59,6 +60,8 @@ def make_params(SZA=0.0, SAA=0.0, Crowndeepth=12.8675, Height=20.0,
         'rho': jnp.float64(rho),
         'tau': jnp.float64(tau),
         'rg': jnp.float64(rg),
+        'CIy1': jnp.float64(CIy1),
+        'CIy2': jnp.float64(CIy2),
     }
 
 
@@ -132,8 +135,8 @@ def _compute_brf_single(t, params, gap_data, lidf,
     psi = jnp.abs(psi)
     psi = jnp.abs(psi - 360.0 * jnp.round(psi / 360.0))
 
-    CIy1 = 1.0
-    CIy2 = 1.0
+    CIy1 = params['CIy1']
+    CIy2 = params['CIy2']
     CIs = cixy(CIy1, CIy2, SZA)
     CIo = cixy(CIy1, CIy2, tto)
 

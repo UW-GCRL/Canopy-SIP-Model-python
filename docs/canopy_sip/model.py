@@ -94,6 +94,10 @@ class CanopySIPModel:
         Leaf transmittance. Default: 0.4409.
     rg : float
         Soil reflectance. Default: 0.159.
+    CIy1 : float
+        Clumping index at nadir (0 degrees). Default: 1.0 (random, no clumping).
+    CIy2 : float
+        Clumping index at 75 degrees. Default: 1.0 (random, no clumping).
     pathAngle : int
         0 = homogeneous canopy, 1 = discrete canopy. Default: 1.
     data_dir : str, optional
@@ -104,6 +108,7 @@ class CanopySIPModel:
                  Height_c=6.634, dthr=0.41234, bl=0.1, iD=0.58073,
                  LAI=5, FAVD=0.375, D=0, TypeLidf=2, LIDFa=57.3,
                  LIDFb=0, rho=0.4957, tau=0.4409, rg=0.159,
+                 CIy1=1.0, CIy2=1.0,
                  pathAngle=1, data_dir=None):
         self.SZA = SZA
         self.SAA = SAA
@@ -122,6 +127,8 @@ class CanopySIPModel:
         self.rho = rho
         self.tau = tau
         self.rg = rg
+        self.CIy1 = CIy1
+        self.CIy2 = CIy2
         self.pathAngle = pathAngle
         self.data_dir = data_dir
 
@@ -203,8 +210,8 @@ class CanopySIPModel:
             psi = abs(psi)
             psi = abs(psi - 360.0 * round(psi / 360.0))
 
-            CIy1 = 1.0
-            CIy2 = 1.0
+            CIy1 = self.CIy1
+            CIy2 = self.CIy2
             CIs = cixy(CIy1, CIy2, tts)
             CIo = cixy(CIy1, CIy2, tto)
 

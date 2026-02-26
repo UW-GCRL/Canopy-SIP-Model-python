@@ -8,6 +8,9 @@ Run with:
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Canopy-SIP Model", page_icon="🌳", layout="wide")
 
@@ -57,6 +60,10 @@ with st.sidebar:
     Height_c = st.slider("Crown Center Height [m]", 2.0, 20.0, 6.634, 0.5)
     iD = st.slider("Hemispherical Interceptance (iD)", 0.1, 0.9, 0.58073, 0.01)
     D = st.slider("Diffuse Fraction (D)", 0.0, 1.0, 0.0, 0.05)
+    CIy1 = st.slider("Clumping Index at Nadir (CIy1)", 0.0, 1.0, 1.0, 0.05,
+                       help="1.0 = random distribution (no clumping); < 1.0 = clumped foliage")
+    CIy2 = st.slider("Clumping Index at 75° (CIy2)", 0.0, 1.0, 1.0, 0.05,
+                       help="1.0 = random distribution (no clumping); < 1.0 = clumped foliage")
 
     st.subheader("🍃 Leaf Angle Distribution")
     TypeLidf = st.selectbox("LIDF Type", [2, 1],
@@ -83,6 +90,7 @@ if st.button("▶️ Run Simulation", type="primary", use_container_width=True):
                 iD=iD, LAI=LAI, D=D,
                 TypeLidf=TypeLidf, LIDFa=LIDFa, LIDFb=LIDFb,
                 rho=rho, tau=tau, rg=rg,
+                CIy1=CIy1, CIy2=CIy2,
             )
             # Convert JAX arrays to numpy for plotting
             result = {k: np.asarray(v) for k, v in result.items()}
@@ -94,6 +102,7 @@ if st.button("▶️ Run Simulation", type="primary", use_container_width=True):
                 iD=iD, LAI=LAI, D=D,
                 TypeLidf=TypeLidf, LIDFa=LIDFa, LIDFb=LIDFb,
                 rho=rho, tau=tau, rg=rg,
+                CIy1=CIy1, CIy2=CIy2,
             )
 
         elapsed = time.perf_counter() - t0
@@ -154,9 +163,92 @@ if 'result' in st.session_state:
     c1.metric("Nadir BRF", f"{BRF3[6]:.4f}")
     c2.metric("Min BRF", f"{BRF3.min():.4f}")
     c3.metric("Max BRF", f"{BRF3.max():.4f}")
-    c4.metric("Hotspot BRF", f"{BRF3[6]:.4f}" if SZA == 0 else "N/A")
+    hotspot_idx = np.argmin(np.abs(signed_vza - params['SZA']))
+    c4.metric("Hotspot BRF", f"{BRF3[hotspot_idx]:.4f}")
     c5.metric("Runtime", f"{st.session_state.get('elapsed', 0)*1000:.0f} ms",
               delta=st.session_state.get('backend', 'NumPy/SciPy'))
+
+    # ── BRDF Kernel Analysis ──────────────────────────────────────────
+    st.divider()
+    st.subheader("BRDF Kernel Analysis (RossThick-LiSparseR)")
+
+    from canopy_sip.brdf_kernels import (
+        fit_brdf_kernels, compute_bsa, compute_wsa,
+        generate_hemisphere_brf, plot_polar_brf,
+    )
+
+    # Derive absolute VZA and RAA from signed VZA
+    vza_abs = np.abs(signed_vza)
+    raa_obs = np.where(signed_vza <= 0, 0.0, 180.0)
+
+    # Fit kernel model
+    f_iso, f_vol, f_geo, r_squared, brf_fitted = fit_brdf_kernels(
+        params['SZA'], vza_abs, raa_obs, BRF3,
+    )
+
+    # Kernel fit metrics
+    st.markdown("**Kernel Weights (RTLSR Model)**")
+    kc1, kc2, kc3, kc4 = st.columns(4)
+    kc1.metric("f_iso (isotropic)", f"{f_iso:.6f}")
+    kc2.metric("f_vol (volumetric)", f"{f_vol:.6f}")
+    kc3.metric("f_geo (geometric)", f"{f_geo:.6f}")
+    kc4.metric("R\u00b2", f"{r_squared:.6f}")
+
+    # Albedo
+    sza_val = params['SZA']
+    bsa = compute_bsa(f_iso, f_vol, f_geo, sza_val)
+    wsa = compute_wsa(f_iso, f_vol, f_geo)
+
+    st.markdown("**Albedo Estimates**")
+    ac1, ac2 = st.columns(2)
+    ac1.metric("Black-Sky Albedo (BSA)", f"{bsa:.6f}",
+               help=f"Directional-hemispherical reflectance at SZA={sza_val}\u00b0")
+    ac2.metric("White-Sky Albedo (WSA)", f"{wsa:.6f}",
+               help="Bihemispherical reflectance (diffuse illumination)")
+
+    # Two-column: comparison chart + polar plot
+    pcol1, pcol2 = st.columns([1, 1])
+
+    with pcol1:
+        st.markdown("**Principal Plane: Simulated vs Kernel Fit**")
+        fig_fit = go.Figure()
+        fig_fit.add_trace(go.Scatter(
+            x=signed_vza, y=BRF3,
+            mode='lines+markers',
+            marker=dict(size=8, color='red', line=dict(width=1, color='black')),
+            line=dict(color='black', width=1.5),
+            name='Canopy-SIP (simulated)',
+        ))
+        fig_fit.add_trace(go.Scatter(
+            x=signed_vza, y=brf_fitted,
+            mode='lines',
+            line=dict(color='blue', width=2, dash='dash'),
+            name='RTLSR kernel fit',
+        ))
+        fig_fit.update_layout(
+            xaxis_title="View Zenith Angle (\u00b0)",
+            yaxis_title="BRF",
+            xaxis=dict(range=[-65, 65], dtick=20),
+            yaxis=dict(range=[max(0, min(BRF3.min(), brf_fitted.min()) - 0.05),
+                              max(BRF3.max(), brf_fitted.max()) + 0.05]),
+            template="plotly_white",
+            height=500,
+            legend=dict(x=0.02, y=0.98),
+        )
+        st.plotly_chart(fig_fit, use_container_width=True)
+
+    with pcol2:
+        st.markdown("**Hemisphere BRF (Kernel Model Prediction)**")
+        vza_grid, raa_grid, brf_grid = generate_hemisphere_brf(
+            f_iso, f_vol, f_geo, sza_val,
+        )
+        polar_fig = plot_polar_brf(
+            sza=sza_val,
+            vza_obs=vza_abs, raa_obs=raa_obs, brf_obs=BRF3,
+            vza_grid=vza_grid, raa_grid=raa_grid, brf_grid=brf_grid,
+        )
+        st.pyplot(polar_fig)
+        plt.close(polar_fig)
 
 else:
     st.info("👈 Set parameters in the sidebar and click **Run Simulation** to generate results.")
