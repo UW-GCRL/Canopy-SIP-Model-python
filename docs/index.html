@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Canopy-SIP Model</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.75.0/build/stlite.css"
+  />
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.75.0/build/stlite.js"></script>
+  <script>
+    stlite.mount(
+      {
+        requirements: ["numpy", "scipy", "plotly", "pandas"],
+        entrypoint: "app.py",
+        files: {
+          "app.py": {
+            url: "app.py",
+          },
+          "canopy_sip/__init__.py": {
+            url: "canopy_sip/__init__.py",
+          },
+          "canopy_sip/model.py": {
+            url: "canopy_sip/model.py",
+          },
+          "canopy_sip/phase.py": {
+            url: "canopy_sip/phase.py",
+          },
+          "canopy_sip/volscat.py": {
+            url: "canopy_sip/volscat.py",
+          },
+          "canopy_sip/campbell.py": {
+            url: "canopy_sip/campbell.py",
+          },
+          "canopy_sip/dladgen.py": {
+            url: "canopy_sip/dladgen.py",
+          },
+          "canopy_sip/cixy.py": {
+            url: "canopy_sip/cixy.py",
+          },
+          "canopy_sip/get_hsf_go.py": {
+            url: "canopy_sip/get_hsf_go.py",
+          },
+          "canopy_sip/sunshade_h.py": {
+            url: "canopy_sip/sunshade_h.py",
+          },
+          "canopy_sip/sunshade_kt_he.py": {
+            url: "canopy_sip/sunshade_kt_he.py",
+          },
+          "data/gap_tot.csv": {
+            url: "data/gap_tot.csv",
+          },
+          "data/gap_within.csv": {
+            url: "data/gap_within.csv",
+          },
+          "data/gap_betw.csv": {
+            url: "data/gap_betw.csv",
+          },
+          "data/CI_within.csv": {
+            url: "data/CI_within.csv",
+          },
+        },
+      },
+      document.getElementById("root")
+    );
+  </script>
+</body>
+</html>

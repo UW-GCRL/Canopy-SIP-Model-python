@@ -5,6 +5,13 @@ Python implementation of the **Canopy-SIP Model** for simulating canopy optical 
 > Translated from the original MATLAB implementation: [YachangHe/Canopy-SIP-Model](https://github.com/YachangHe/Canopy-SIP-Model).  
 > Results match the MATLAB reference output to within ~2×10⁻⁷.
 
+## Online Demo
+
+**Try it in your browser** (no installation needed):
+**[https://uw-gcrl.github.io/Canopy-SIP-Model-python/](https://uw-gcrl.github.io/Canopy-SIP-Model-python/)**
+
+The online version runs entirely in the browser using WebAssembly (NumPy/SciPy backend). For JAX acceleration (JIT, GPU, autodiff), download the code and run locally.
+
 ## Overview
 
 This model simulates BRF for **discrete vegetation canopies** by integrating:
@@ -28,6 +35,12 @@ pip install "jax[cuda12]"     # NVIDIA GPU (CUDA 12)
 ```
 
 ## Usage
+
+### Web UI (local)
+
+```bash
+streamlit run app.py     # Opens interactive web UI with NumPy/JAX backend selection
+```
 
 ### Command Line
 
@@ -144,6 +157,8 @@ BRFs = batch_simulate(params_batch, gap_data, lidf)  # shape (100, 13)
 │       ├── sunshade_h.py         #    Sunlit fractions with hotspot (JAX)
 │       └── sunshade_kt_he.py     #    Sunlit fractions without hotspot (JAX)
 ├── data/                         # Structural look-up tables (CSV)
+├── docs/                         # GitHub Pages (stlite browser app)
+│   └── index.html                #    Entry point for online demo
 ├── requirements.txt
 ├── LICENSE
 └── README.md
