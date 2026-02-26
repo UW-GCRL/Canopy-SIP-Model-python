@@ -175,11 +175,10 @@ def compute_bsa(f_iso, f_vol, f_geo, sza):
     """
     s = np.deg2rad(sza)
     s2 = s * s
-    s3 = s2 * s
 
     g_iso = 1.0
-    g_vol = -0.007574 + (-0.070987) * s2 + 0.307588 * s3
-    g_geo = -1.284909 + (-0.166314) * s2 + 0.041840 * s3
+    g_vol = -0.007574 + (-0.070987) * s + 0.307588 * s2
+    g_geo = -1.284909 + (-0.166314) * s + 0.041840 * s2
 
     return f_iso * g_iso + f_vol * g_vol + f_geo * g_geo
 
