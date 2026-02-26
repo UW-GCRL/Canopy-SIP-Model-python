@@ -67,7 +67,7 @@
   <script>
     stlite.mount(
       {
-        requirements: ["numpy", "scipy", "plotly", "pandas"],
+        requirements: ["numpy", "scipy", "plotly", "pandas", "matplotlib"],
         entrypoint: "app.py",
         files: {
           "app.py": {
@@ -102,6 +102,9 @@
           },
           "canopy_sip/sunshade_kt_he.py": {
             url: "canopy_sip/sunshade_kt_he.py",
+          },
+          "canopy_sip/brdf_kernels.py": {
+            url: "canopy_sip/brdf_kernels.py",
           },
           "data/gap_tot.csv": {
             url: "data/gap_tot.csv",
