@@ -10,7 +10,7 @@ Two backends are available:
   - JAX (GPU, JIT, autodiff): ``from canopy_sip.jax_backend import run_simulation``
 
 Authors: Yelu Zeng, Min Chen, Dalei Hao, Yachang He
-Python translation by: AI Assistant
+Python translation by: Hangkai You and Claude AI
 """
 
 from .model import CanopySIPModel, run_simulation

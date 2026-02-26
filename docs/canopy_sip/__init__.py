@@ -6,7 +6,7 @@ for discrete vegetation canopies using Geometric-Optical (GO) theory and
 Spectral Invariants Theory (p-theory).
 
 Authors: Yelu Zeng, Min Chen, Dalei Hao, Yachang He
-Python translation by: AI Assistant
+Python translation by: Hangkai You and Claude AI
 """
 
 from .model import CanopySIPModel, run_simulation

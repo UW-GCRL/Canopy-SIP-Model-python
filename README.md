@@ -188,6 +188,8 @@ If you use this code in your research, please cite:
 
 ## Acknowledgments
 
+- **Python translation and JAX backend**: Hangkai You (University of Wisconsin-Madison) and Claude AI
+- **Web deployment (GitHub Pages)**: Hangkai You (University of Wisconsin-Madison)
 - **Original MATLAB implementation**: [YachangHe/Canopy-SIP-Model](https://github.com/YachangHe/Canopy-SIP-Model)
 - **Original SIP Model**: Zeng et al. (2018), *Remote Sensing*, 10(10), 1508.
 - **PATH_RT Model**: Li et al. (2024), *Remote Sensing of Environment*, 303, 113985.
