@@ -51,6 +51,7 @@ with st.sidebar:
         LIDFb = st.slider("LIDFb", -1.0, 1.0, -0.15, 0.05)
 
 # ── Run simulation ──────────────────────────────────────────────────────
+st.caption("Note: Each simulation may take a few seconds in the browser environment.")
 if st.button("▶️ Run Simulation", type="primary", use_container_width=True):
     with st.spinner("Running BRF simulation..."):
         import time
