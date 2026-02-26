@@ -8,9 +8,6 @@ Run with:
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Canopy-SIP Model", page_icon="🌳", layout="wide")
 
@@ -242,6 +239,9 @@ if 'result' in st.session_state:
         vza_grid, raa_grid, brf_grid = generate_hemisphere_brf(
             f_iso, f_vol, f_geo, sza_val,
         )
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
         polar_fig = plot_polar_brf(
             sza=sza_val,
             vza_obs=vza_abs, raa_obs=raa_obs, brf_obs=BRF3,
