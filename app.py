@@ -170,8 +170,8 @@ if 'result' in st.session_state:
     st.subheader("BRDF Kernel Analysis (RossThick-LiSparseR)")
 
     from canopy_sip.brdf_kernels import (
-        fit_brdf_kernels, compute_bsa, compute_wsa,
-        generate_hemisphere_brf, plot_polar_brf,
+        fit_brdf_kernels, predict_brdf, compute_bsa, compute_wsa,
+        generate_hemisphere_brf,
     )
 
     # Derive absolute VZA and RAA from signed VZA
@@ -239,16 +239,44 @@ if 'result' in st.session_state:
         vza_grid, raa_grid, brf_grid = generate_hemisphere_brf(
             f_iso, f_vol, f_geo, sza_val,
         )
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-        polar_fig = plot_polar_brf(
-            sza=sza_val,
-            vza_obs=vza_abs, raa_obs=raa_obs, brf_obs=BRF3,
-            vza_grid=vza_grid, raa_grid=raa_grid, brf_grid=brf_grid,
+        # Plotly polar heatmap via dense scatter markers
+        fig_polar = go.Figure()
+        fig_polar.add_trace(go.Scatterpolar(
+            r=vza_grid.ravel(), theta=raa_grid.ravel(),
+            mode='markers',
+            marker=dict(
+                size=4, color=brf_grid.ravel(), colorscale='YlOrRd',
+                showscale=True, colorbar=dict(title='BRF'),
+                cmin=float(brf_grid.min()), cmax=float(brf_grid.max()),
+            ),
+            hovertemplate='VZA=%{r:.0f}\u00b0  RAA=%{theta:.0f}\u00b0<br>BRF=%{marker.color:.4f}<extra></extra>',
+            showlegend=False,
+        ))
+        # Observed data points
+        fig_polar.add_trace(go.Scatterpolar(
+            r=vza_abs, theta=raa_obs,
+            mode='markers',
+            marker=dict(size=10, color='black', symbol='diamond'),
+            name='Simulated',
+        ))
+        # Sun position
+        fig_polar.add_trace(go.Scatterpolar(
+            r=[sza_val], theta=[0.0],
+            mode='markers',
+            marker=dict(size=14, color='gold', symbol='star',
+                        line=dict(width=1, color='black')),
+            name=f'Sun (SZA={sza_val}\u00b0)',
+        ))
+        fig_polar.update_layout(
+            polar=dict(
+                radialaxis=dict(range=[0, 65], tickvals=[0, 20, 40, 60]),
+                angularaxis=dict(direction='clockwise', rotation=90),
+            ),
+            title=f'Hemisphere BRF (SZA={sza_val}\u00b0)',
+            height=500, showlegend=True,
+            legend=dict(x=0.0, y=-0.15, orientation='h'),
         )
-        st.pyplot(polar_fig)
-        plt.close(polar_fig)
+        st.plotly_chart(fig_polar, use_container_width=True)
 
 else:
     st.info("👈 Set parameters in the sidebar and click **Run Simulation** to generate results.")
