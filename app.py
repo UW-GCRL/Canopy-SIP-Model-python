@@ -160,7 +160,7 @@ if 'result' in st.session_state:
     c1.metric("Nadir BRF", f"{BRF3[6]:.4f}")
     c2.metric("Min BRF", f"{BRF3.min():.4f}")
     c3.metric("Max BRF", f"{BRF3.max():.4f}")
-    hotspot_idx = np.argmin(np.abs(signed_vza - params['SZA']))
+    hotspot_idx = np.argmin(np.abs(signed_vza + params['SZA']))
     c4.metric("Hotspot BRF", f"{BRF3[hotspot_idx]:.4f}")
     c5.metric("Runtime", f"{st.session_state.get('elapsed', 0)*1000:.0f} ms",
               delta=st.session_state.get('backend', 'NumPy/SciPy'))
